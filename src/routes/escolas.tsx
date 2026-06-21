@@ -9,6 +9,7 @@ import {
 
 import { SchoolPartnership } from "@/components/home/SchoolPartnership";
 import { SchoolsGalleryCarousel } from "@/components/schools/SchoolsGalleryCarousel";
+import { PartnerCompanies } from "@/components/shared/PartnerCompanies";
 
 export const Route = createFileRoute("/escolas")({
   head: () => ({
