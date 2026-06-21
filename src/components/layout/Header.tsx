@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Menu, MessageCircle } from "lucide-react";
+import { Menu } from "lucide-react";
+
+import { CartButton } from "@/components/cart/CartButton";
 import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,57 +12,84 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { CartButton } from "@/components/cart/CartButton";
-import { buildWhatsappUrl, isWhatsappConfigured } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { to: "/" as const, label: "Início" },
-  { to: "/produtos" as const, label: "Produtos" },
-  { to: "/escolas" as const, label: "Para escolas" },
-  { to: "/sobre" as const, label: "Sobre" },
-  { to: "/faq" as const, label: "FAQ" },
-  { to: "/contato" as const, label: "Contato" },
+const NAV_ITEMS = [
+  {
+    to: "/" as const,
+    label: "Início",
+  },
+  {
+    to: "/produtos" as const,
+    label: "Cardápio",
+  },
+  {
+    to: "/escolas" as const,
+    label: "Para escolas",
+  },
+  {
+    to: "/sobre" as const,
+    label: "Sobre nós",
+  },
 ];
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
 
-  const waUrl = isWhatsappConfigured()
-    ? buildWhatsappUrl("Olá! Gostaria de tirar uma dúvida.")
-    : undefined;
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 w-full border-b transition-colors",
+        "sticky top-0 z-50 border-b transition-all duration-300",
         scrolled
-          ? "border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70"
-          : "border-transparent bg-background/60 backdrop-blur",
+          ? "border-border bg-background/95 shadow-sm backdrop-blur"
+          : "border-transparent bg-background/85 backdrop-blur",
       )}
     >
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link to="/" aria-label="Ir para a página inicial" className="shrink-0">
-          <Logo className="h-12" />
+      <div className="container-page flex h-18 items-center justify-between gap-4">
+        <Link
+          to="/"
+          aria-label="Ir para a página inicial"
+          className="shrink-0"
+        >
+          <Logo />
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex" aria-label="Principal">
-          {NAV.map((item) => (
+        <nav
+          aria-label="Navegação principal"
+          className="hidden items-center gap-1 lg:flex"
+        >
+          {NAV_ITEMS.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              activeProps={{ className: "text-primary font-semibold" }}
-              inactiveProps={{ className: "text-foreground/80 hover:text-primary" }}
-              activeOptions={{ exact: item.to === "/" }}
-              className="text-sm transition-colors"
+              activeOptions={{
+                exact: item.to === "/",
+              }}
+              activeProps={{
+                className: "bg-accent text-primary font-semibold",
+              }}
+              inactiveProps={{
+                className:
+                  "text-foreground/75 hover:bg-accent hover:text-foreground",
+              }}
+              className="rounded-xl px-4 py-2 text-sm transition-colors"
             >
               {item.label}
             </Link>
@@ -68,60 +97,76 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {waUrl && (
-            <Button
-              asChild
-              variant="whatsapp"
-              size="sm"
-              className="hidden md:inline-flex"
-            >
-              <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                <MessageCircle aria-hidden="true" />
-                WhatsApp
-              </a>
-            </Button>
-          )}
           <CartButton />
-          <Sheet open={open} onOpenChange={setOpen}>
+
+          <Button
+            asChild
+            className="hidden lg:inline-flex"
+          >
+            <Link to="/produtos">
+              Ver cardápio
+            </Link>
+          </Button>
+
+          <Sheet
+            open={mobileMenuOpen}
+            onOpenChange={setMobileMenuOpen}
+          >
             <SheetTrigger asChild>
               <Button
-                variant="ghost"
+                type="button"
+                variant="outline"
                 size="icon"
                 className="lg:hidden"
-                aria-label="Abrir menu de navegação"
+                aria-label="Abrir menu"
               >
-                <Menu />
+                <Menu aria-hidden="true" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[88vw] max-w-sm">
+
+            <SheetContent side="right">
               <SheetHeader>
-                <SheetTitle>
-                  <Logo className="h-14" />
-                </SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <nav className="mt-6 flex flex-col gap-1" aria-label="Mobile">
-                {NAV.map((item) => (
+
+              <nav
+                aria-label="Navegação para dispositivos móveis"
+                className="mt-8 flex flex-col gap-2"
+              >
+                {NAV_ITEMS.map((item) => (
                   <Link
                     key={item.to}
                     to={item.to}
-                    onClick={() => setOpen(false)}
-                    activeProps={{ className: "bg-accent text-primary font-semibold" }}
-                    inactiveProps={{ className: "text-foreground/80" }}
-                    activeOptions={{ exact: item.to === "/" }}
-                    className="rounded-lg px-3 py-3 text-base hover:bg-accent"
+                    onClick={() => setMobileMenuOpen(false)}
+                    activeOptions={{
+                      exact: item.to === "/",
+                    }}
+                    activeProps={{
+                      className: "bg-accent text-primary font-semibold",
+                    }}
+                    inactiveProps={{
+                      className:
+                        "text-foreground/80 hover:bg-accent",
+                    }}
+                    className="rounded-xl px-4 py-3 text-base transition-colors"
                   >
                     {item.label}
                   </Link>
                 ))}
-              </nav>
-              {waUrl && (
-                <Button asChild variant="whatsapp" size="lg" className="mt-6 w-full">
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle aria-hidden="true" />
-                    Falar no WhatsApp
-                  </a>
+
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-4 w-full"
+                >
+                  <Link
+                    to="/produtos"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Ver cardápio
+                  </Link>
                 </Button>
-              )}
+              </nav>
             </SheetContent>
           </Sheet>
         </div>
