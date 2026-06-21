@@ -2,133 +2,236 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, School } from "lucide-react";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { buildSchoolMessage, buildWhatsappUrl, isWhatsappConfigured } from "@/lib/whatsapp";
-import { generateOrderCode } from "@/lib/order-code";
 import { track } from "@/lib/analytics";
-import { toast } from "sonner";
+import { generateOrderCode } from "@/lib/order-code";
+import {
+  buildSchoolMessage,
+  buildWhatsappUrl,
+  isWhatsappConfigured,
+} from "@/lib/whatsapp";
 
-const schema = z.object({
-  schoolName: z.string().trim().min(2, "Informe o nome da escola").max(120),
-  responsibleName: z.string().trim().min(2, "Informe o responsável").max(120),
-  phone: z.string().trim().min(8, "Telefone inválido").max(30),
-  childrenCount: z.string().trim().max(20).optional().or(z.literal("")),
+const schoolFormSchema = z.object({
+  schoolName: z
+    .string()
+    .trim()
+    .min(2, "Informe o nome da escola")
+    .max(120, "Nome muito longo"),
+
+  responsibleName: z
+    .string()
+    .trim()
+    .min(2, "Informe o nome do responsável")
+    .max(120, "Nome muito longo"),
+
+  phone: z
+    .string()
+    .trim()
+    .min(8, "Informe um telefone válido")
+    .max(30, "Telefone muito longo"),
+
+  childrenCount: z
+    .string()
+    .trim()
+    .max(20, "Quantidade inválida")
+    .optional()
+    .or(z.literal("")),
 });
 
-type Values = z.infer<typeof schema>;
+type SchoolFormValues = z.infer<typeof schoolFormSchema>;
 
 export function SchoolPartnership() {
   const [sent, setSent] = useState(false);
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<Values>({ resolver: zodResolver(schema) });
+    formState: {
+      errors,
+      isSubmitting,
+    },
+  } = useForm<SchoolFormValues>({
+    resolver: zodResolver(schoolFormSchema),
+    defaultValues: {
+      schoolName: "",
+      responsibleName: "",
+      phone: "",
+      childrenCount: "",
+    },
+  });
 
-  const onSubmit = (v: Values) => {
+  const onSubmit = (values: SchoolFormValues) => {
     if (!isWhatsappConfigured()) {
-      toast.error("WhatsApp não configurado");
+      toast.error("O WhatsApp ainda não foi configurado.");
       return;
     }
+
     const code = generateOrderCode("PAR");
-    const url = buildWhatsappUrl(
-      buildSchoolMessage({
-        code,
-        schoolName: v.schoolName,
-        responsibleName: v.responsibleName,
-        phone: v.phone,
-        childrenCount: v.childrenCount || undefined,
-      }),
-    );
-    track("school_contact_clicked", { code });
+
+    const message = buildSchoolMessage({
+      code,
+      schoolName: values.schoolName,
+      responsibleName: values.responsibleName,
+      phone: values.phone,
+      childrenCount: values.childrenCount || undefined,
+    });
+
+    const url = buildWhatsappUrl(message);
+
+    track("school_contact_clicked", {
+      code,
+      schoolName: values.schoolName,
+    });
+
     window.open(url, "_blank", "noopener,noreferrer");
     setSent(true);
   };
 
   return (
-    <section className="relative overflow-hidden bg-[var(--brand-secondary)] py-16 text-primary-foreground md:py-24">
-      <div className="container-page grid items-center gap-10 lg:grid-cols-2">
+    <section className="border-t border-border bg-muted/30 py-16 md:py-20">
+      <div className="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
-            Para escolas
-          </p>
-          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
-            Uma parceria que vai além do lanche.
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
+            <School className="h-4 w-4" aria-hidden="true" />
+            Solicitação de parceria
+          </span>
+
+          <h2 className="mt-5 font-display text-3xl font-bold sm:text-4xl">
+            Vamos entender a necessidade da sua escola
           </h2>
-          <p className="mt-4 max-w-xl text-base opacity-90">
-            Atendemos escolas com planejamento de quantidade, possibilidade de
-            frequência recorrente e comunicação próxima com a instituição.
-            Adaptamos cardápios conforme a operação e a realidade da escola.
+
+          <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
+            Preencha os dados principais da instituição. As informações serão
+            organizadas em uma mensagem pronta para continuar o atendimento
+            pelo WhatsApp.
           </p>
-          <ul className="mt-6 grid gap-2 text-sm opacity-90 sm:grid-cols-2">
-            <li>• Planejamento por turma e por turno</li>
-            <li>• Cardápios adaptáveis</li>
-            <li>• Frequência semanal ou pontual</li>
-            <li>• Comunicação direta com a coordenação</li>
+
+          <ul className="mt-7 space-y-3 text-sm text-muted-foreground">
+            <li>• Planejamento por turma e turno</li>
+            <li>• Pedidos recorrentes ou pontuais</li>
+            <li>• Opções para eventos e datas especiais</li>
+            <li>• Atendimento direto com a coordenação</li>
           </ul>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="rounded-3xl bg-background p-6 text-foreground shadow-2xl"
-          noValidate
-        >
-          <h3 className="font-display text-xl font-bold">Solicitar uma conversa</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Preencha e enviaremos uma mensagem pronta no WhatsApp.
+        <div className="rounded-[2rem] border border-border bg-background p-6 shadow-[var(--shadow-card)] sm:p-8">
+          <h3 className="font-display text-2xl font-bold">
+            Solicitar uma proposta
+          </h3>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Conte um pouco sobre a escola para iniciarmos o atendimento.
           </p>
-          <div className="mt-5 grid gap-3">
-            <div>
-              <Label htmlFor="schoolName">Nome da escola</Label>
-              <Input id="schoolName" {...register("schoolName")} className="mt-1" />
-              {errors.schoolName && (
-                <p className="mt-1 text-xs text-destructive">{errors.schoolName.message}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="responsibleName">Nome do responsável</Label>
-              <Input id="responsibleName" {...register("responsibleName")} className="mt-1" />
-              {errors.responsibleName && (
-                <p className="mt-1 text-xs text-destructive">{errors.responsibleName.message}</p>
-              )}
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="phone">Telefone</Label>
-                <Input id="phone" inputMode="tel" {...register("phone")} className="mt-1" />
-                {errors.phone && (
-                  <p className="mt-1 text-xs text-destructive">{errors.phone.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="childrenCount">Nº aproximado de crianças</Label>
-                <Input
-                  id="childrenCount"
-                  inputMode="numeric"
-                  {...register("childrenCount")}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
-          <Button
-            type="submit"
-            variant="whatsapp"
-            size="lg"
-            className="mt-5 w-full"
-            disabled={isSubmitting}
+
+          <form
+            className="mt-7 space-y-5"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
           >
-            <MessageCircle aria-hidden="true" /> Solicitar conversa
-          </Button>
-          {sent && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Mensagem aberta no WhatsApp. Caso a janela não tenha aparecido, verifique seu navegador.
-            </p>
-          )}
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="schoolName">Nome da escola</Label>
+
+              <Input
+                id="schoolName"
+                placeholder="Ex.: Escola Mundo Feliz"
+                autoComplete="organization"
+                aria-invalid={Boolean(errors.schoolName)}
+                {...register("schoolName")}
+              />
+
+              {errors.schoolName && (
+                <p className="text-sm text-destructive">
+                  {errors.schoolName.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="responsibleName">Nome do responsável</Label>
+
+              <Input
+                id="responsibleName"
+                placeholder="Nome de quem fará o atendimento"
+                autoComplete="name"
+                aria-invalid={Boolean(errors.responsibleName)}
+                {...register("responsibleName")}
+              />
+
+              {errors.responsibleName && (
+                <p className="text-sm text-destructive">
+                  {errors.responsibleName.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="(34) 99999-9999"
+                autoComplete="tel"
+                aria-invalid={Boolean(errors.phone)}
+                {...register("phone")}
+              />
+
+              {errors.phone && (
+                <p className="text-sm text-destructive">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="childrenCount">
+                Número aproximado de crianças
+              </Label>
+
+              <Input
+                id="childrenCount"
+                inputMode="numeric"
+                placeholder="Ex.: 120"
+                aria-invalid={Boolean(errors.childrenCount)}
+                {...register("childrenCount")}
+              />
+
+              {errors.childrenCount && (
+                <p className="text-sm text-destructive">
+                  {errors.childrenCount.message}
+                </p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              <MessageCircle aria-hidden="true" />
+
+              {isSubmitting
+                ? "Preparando mensagem..."
+                : "Solicitar proposta"}
+            </Button>
+
+            {sent && (
+              <p
+                role="status"
+                className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary"
+              >
+                A mensagem foi aberta no WhatsApp. Caso nada tenha aparecido,
+                verifique se o navegador bloqueou a nova janela.
+              </p>
+            )}
+          </form>
+        </div>
       </div>
     </section>
   );
