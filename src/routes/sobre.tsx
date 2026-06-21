@@ -2,13 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, Sparkles, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { company } from "@/config/company";
+import { companyConfig } from "@/config/company";
 
 export const Route = createFileRoute("/sobre")({
   head: () => ({
     meta: [
       {
-        title: `Sobre nós — ${company.name}`,
+        title: `Sobre nós — ${companyConfig.name}`,
       },
       {
         name: "description",
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/sobre")({
       },
       {
         property: "og:title",
-        content: `Sobre nós — ${company.name}`,
+        content: `Sobre nós — ${companyConfig.name}`,
       },
       {
         property: "og:description",
