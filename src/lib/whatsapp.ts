@@ -1,13 +1,20 @@
 import { companyConfig } from "@/config/company";
 import type { CartItem, CheckoutData } from "@/types";
+
 import { formatBRL } from "./currency";
 import { describeOrigin } from "./utm";
 
 export function isWhatsappConfigured(): boolean {
-  return Boolean(companyConfig.whatsapp && /^\d{10,15}$/.test(companyConfig.whatsapp));
+  return Boolean(
+    companyConfig.whatsapp &&
+      /^\d{10,15}$/.test(companyConfig.whatsapp),
+  );
 }
 
-function line(label: string, value?: string | null): string {
+function line(
+  label: string,
+  value?: string | null,
+): string {
   if (!value) return "";
   return `${label} ${value}`;
 }
@@ -18,20 +25,56 @@ export function buildFamilyOrderMessage(args: {
   data: CheckoutData;
 }): string {
   const { code, items, data } = args;
-  const subtotal = items.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0);
+
+  const subtotal = items.reduce(
+    (total, item) =>
+      total + item.unitPrice * item.quantity,
+    0,
+  );
+
+  const hasDelivery =
+    data.fulfillment === "entrega" ||
+    data.fulfillment === "escola";
+
+  const deliveryFee = hasDelivery
+    ? data.deliveryFee ?? 0
+    : 0;
+
+  const total = subtotal + deliveryFee;
   const origin = describeOrigin("family");
 
   const productLines = items
     .map(
-      (it) =>
-        `• ${it.quantity}x ${it.name}${it.variationName ? ` (${it.variationName})` : ""} — ${formatBRL(
-          it.unitPrice * it.quantity,
+      (item) =>
+        `• ${item.quantity}x ${item.name}${
+          item.variationName
+            ? ` (${item.variationName})`
+            : ""
+        } — ${formatBRL(
+          item.unitPrice * item.quantity,
         )}`,
     )
     .join("\n");
 
   const periodLabel =
-    data.period === "manha" ? "Manhã" : data.period === "tarde" ? "Tarde" : data.time || "A combinar";
+    data.period === "manha"
+      ? "Manhã"
+      : data.period === "tarde"
+        ? "Tarde"
+        : data.time || "A combinar";
+
+  const freightLine = hasDelivery
+    ? data.deliveryFee !== undefined
+      ? `🚚 Frete para ${
+          data.district ?? "bairro informado"
+        }: ${formatBRL(data.deliveryFee)}`
+      : "🚚 Frete: a confirmar"
+    : "🚚 Frete: não se aplica";
+
+  const totalLine =
+    hasDelivery && data.deliveryFee === undefined
+      ? "💰 Total final: a confirmar"
+      : `💰 Total estimado: ${formatBRL(total)}`;
 
   return [
     "Olá! Gostaria de realizar um pedido.",
@@ -41,25 +84,37 @@ export function buildFamilyOrderMessage(args: {
     `📞 Telefone: ${data.phone}`,
     data.email ? `✉️ E-mail: ${data.email}` : "",
     "",
-    "🛒 PRODUTOS",
+    "🛍️ PRODUTOS",
     productLines,
     "",
-    `💰 Subtotal estimado: ${formatBRL(subtotal)}`,
-    "🚚 Frete: a confirmar",
-    "💳 Total final: a confirmar",
+    `💵 Subtotal: ${formatBRL(subtotal)}`,
+    freightLine,
+    totalLine,
     "",
     "📍 ENTREGA",
-    `Modalidade: ${labelFulfillment(data.fulfillment)}`,
-    line("Endereço:", data.street ? `${data.street}, ${data.number ?? "s/n"}` : null),
-    line("Bairro/Cidade:", [data.district, data.city].filter(Boolean).join(" — ") || null),
+    `Modalidade: ${labelFulfillment(
+      data.fulfillment,
+    )}`,
+    line(
+      "Endereço:",
+      data.street
+        ? `${data.street}, ${data.number ?? "s/n"}`
+        : null,
+    ),
+    line(
+      "Bairro/Cidade:",
+      [data.district, data.city]
+        .filter(Boolean)
+        .join(" — ") || null,
+    ),
     line("Complemento:", data.complement),
     line("Referência:", data.reference),
     line("CEP:", data.cep),
     "",
     `📅 Data desejada: ${data.date}`,
-    `🕐 Horário desejado: ${periodLabel}`,
+    `⏰ Horário desejado: ${periodLabel}`,
     "",
-    "🥗 Restrições ou cuidados:",
+    "⚠️ Restrições ou cuidados:",
     data.restrictions || "—",
     "",
     "📝 Observações:",
@@ -69,9 +124,9 @@ export function buildFamilyOrderMessage(args: {
     `Origem: ${origin}`,
     "Modalidade: Família",
     "",
-    "Aguardo a confirmação de disponibilidade, horário e valor final.",
+    "Aguardo a confirmação de disponibilidade e horário.",
   ]
-    .filter((l) => l !== "")
+    .filter((item) => item !== "")
     .join("\n");
 }
 
@@ -87,14 +142,19 @@ export function buildSchoolMessage(args: {
   restrictions?: string;
 }): string {
   const origin = describeOrigin("school");
+
   return [
     "Olá! Represento uma escola e gostaria de conversar sobre uma parceria.",
     "",
     `🏫 Escola: ${args.schoolName}`,
     `👤 Responsável: ${args.responsibleName}`,
     `📞 Telefone: ${args.phone}`,
-    args.childrenCount ? `👧 Número aproximado de crianças: ${args.childrenCount}` : "",
-    args.frequency ? `📅 Frequência desejada: ${args.frequency}` : "",
+    args.childrenCount
+      ? `👧 Número aproximado de crianças: ${args.childrenCount}`
+      : "",
+    args.frequency
+      ? `📅 Frequência desejada: ${args.frequency}`
+      : "",
     args.region ? `📍 Região: ${args.region}` : "",
     "",
     "Necessidade principal:",
@@ -111,8 +171,10 @@ export function buildSchoolMessage(args: {
     .join("\n");
 }
 
-function labelFulfillment(f: CheckoutData["fulfillment"]): string {
-  switch (f) {
+function labelFulfillment(
+  fulfillment: CheckoutData["fulfillment"],
+): string {
+  switch (fulfillment) {
     case "entrega":
       return "Entrega";
     case "retirada":
@@ -124,7 +186,11 @@ function labelFulfillment(f: CheckoutData["fulfillment"]): string {
   }
 }
 
-export function buildWhatsappUrl(message: string): string {
+export function buildWhatsappUrl(
+  message: string,
+): string {
   const number = companyConfig.whatsapp;
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(
+    message,
+  )}`;
 }
