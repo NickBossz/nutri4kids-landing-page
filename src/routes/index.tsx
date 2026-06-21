@@ -1,29 +1,50 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { HeroSection } from "@/components/home/HeroSection";
+import { AudienceSelector } from "@/components/home/AudienceSelector";
+import { BenefitsSection } from "@/components/home/BenefitsSection";
+import { FeaturedProducts } from "@/components/home/FeaturedProducts";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { KitsSection } from "@/components/home/KitsSection";
+import { SchoolPartnership } from "@/components/home/SchoolPartnership";
+import { ProductionGallery } from "@/components/home/ProductionGallery";
+import { Testimonials } from "@/components/home/Testimonials";
+import { FaqSection } from "@/components/home/FaqSection";
+import { FinalCTA } from "@/components/home/FinalCTA";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "Lanchinho Feliz | Alimentação infantil para famílias e escolas" },
+      {
+        name: "description",
+        content:
+          "Lanches, lancheiras e kits cuidadosos para crianças. Atendemos famílias e escolas parceiras com pedidos confirmados pelo WhatsApp.",
+      },
+      { property: "og:title", content: "Lanchinho Feliz" },
+      {
+        property: "og:description",
+        content:
+          "Lanches que alimentam bons momentos — para famílias e escolas parceiras.",
+      },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <>
+      <HeroSection />
+      <AudienceSelector />
+      <BenefitsSection />
+      <FeaturedProducts />
+      <HowItWorks />
+      <KitsSection />
+      <SchoolPartnership />
+      <ProductionGallery />
+      <Testimonials />
+      <FaqSection />
+      <FinalCTA />
+    </>
   );
 }
