@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+import { PlantToggle } from "@/components/shared/PlantToggle";
+
 const NAV_ITEMS = [
   {
     to: "/" as const,
@@ -95,8 +97,11 @@ export function Header() {
             </Link>
           ))}
         </nav>
-
+        
+        
         <div className="flex items-center gap-2">
+          <PlantToggle />
+
           <CartButton />
 
           <Button
