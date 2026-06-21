@@ -17,6 +17,7 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Toaster } from "@/components/ui/sonner";
 import { captureUtm } from "@/lib/utm";
+import { GrowingPlant } from "@/components/shared/GrowingPlant";
 
 function NotFoundComponent() {
   return (
@@ -150,12 +151,18 @@ function RootComponent() {
       <div className="flex min-h-dvh flex-col">
         <AnnouncementBar />
         <Header />
+
         <main className="flex-1">
           <Outlet />
         </main>
+
         <Footer />
       </div>
+
       <CartDrawer />
+
+      <GrowingPlant />
+
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
