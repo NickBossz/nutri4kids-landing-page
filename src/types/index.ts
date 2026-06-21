@@ -66,10 +66,16 @@ export interface OrderOrigin {
 }
 
 export interface CheckoutData {
-  fulfillment: "entrega" | "retirada" | "escola" | "recorrente";
+  fulfillment:
+    | "entrega"
+    | "retirada"
+    | "escola"
+    | "recorrente";
+
   name: string;
   phone: string;
   email?: string;
+
   cep?: string;
   street?: string;
   number?: string;
@@ -77,14 +83,18 @@ export interface CheckoutData {
   district?: string;
   city?: string;
   reference?: string;
+  deliveryFee?: number;
+
   date: string;
   period: "manha" | "tarde" | "horario";
   time?: string;
+
   childName?: string;
   ageRange?: string;
   restrictions?: string;
   notes?: string;
   packaging?: string;
   schoolName?: string;
+
   reviewConfirmed: boolean;
 }

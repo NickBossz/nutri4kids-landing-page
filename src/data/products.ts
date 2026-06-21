@@ -1,7 +1,7 @@
 import type { Product } from "@/types";
 
 const productImage = (filename: string) =>
-  `images/products/${encodeURIComponent(filename)}`;
+  `/images/products/${encodeURIComponent(filename)}`;
 
 export const products: Product[] = [
   {
