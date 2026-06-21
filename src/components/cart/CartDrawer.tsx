@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart-store";
 import { formatBRL } from "@/lib/currency";
 import { CheckoutForm } from "./CheckoutForm";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "@tanstack/react-router";
 
 export function CartDrawer() {
@@ -25,44 +24,47 @@ export function CartDrawer() {
   const removeItem = useCartStore((s) => s.removeItem);
   const subtotal = useCartStore((s) => s.getSubtotal());
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const [step, setStep] = useState<"cart" | "checkout">("cart");
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       close();
-      setStep("cart");
+      setTimeout(() => setStep("cart"), 200);
     }
   };
 
+  const side = isMobile ? "bottom" : "right";
+  const itemCount = items.reduce((a, i) => a + i.quantity, 0);
+
   return (
-    <Drawer open={isOpen} onOpenChange={handleOpenChange} direction="right">
-      <DrawerContent
-        className="ml-auto h-full max-h-screen w-full max-w-md rounded-l-3xl rounded-r-none"
-        aria-describedby="cart-description"
+    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+      <SheetContent
+        side={side}
+        className={
+          side === "right"
+            ? "flex w-full flex-col gap-0 p-0 sm:max-w-md"
+            : "flex h-[92dvh] flex-col gap-0 rounded-t-3xl p-0"
+        }
       >
-        <DrawerHeader className="flex flex-row items-start justify-between gap-2 border-b border-border">
+        <SheetHeader className="border-b border-border p-5">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
             </span>
             <div>
-              <DrawerTitle className="text-left text-lg">
+              <SheetTitle className="text-left text-lg">
                 {step === "cart" ? "Seu pedido" : "Finalizar pedido"}
-              </DrawerTitle>
-              <DrawerDescription id="cart-description" className="text-left">
+              </SheetTitle>
+              <SheetDescription className="text-left">
                 {items.length === 0
                   ? "Nenhum item adicionado ainda"
-                  : `${items.reduce((a, i) => a + i.quantity, 0)} item(ns) no carrinho`}
-              </DrawerDescription>
+                  : `${itemCount} item${itemCount === 1 ? "" : "s"} no carrinho`}
+              </SheetDescription>
             </div>
           </div>
-          <DrawerClose asChild>
-            <Button variant="ghost" size="icon" aria-label="Fechar carrinho">
-              <X />
-            </Button>
-          </DrawerClose>
-        </DrawerHeader>
+        </SheetHeader>
 
         {step === "cart" ? (
           <>
@@ -102,7 +104,7 @@ export function CartDrawer() {
                             alt=""
                             width={72}
                             height={72}
-                            className="h-18 w-18 shrink-0 rounded-xl object-cover"
+                            className="h-[72px] w-[72px] shrink-0 rounded-xl object-cover"
                             loading="lazy"
                           />
                         )}
@@ -125,7 +127,10 @@ export function CartDrawer() {
                               >
                                 <Minus className="h-3.5 w-3.5" />
                               </Button>
-                              <span className="w-7 text-center text-sm font-medium" aria-live="polite">
+                              <span
+                                className="w-7 text-center text-sm font-medium"
+                                aria-live="polite"
+                              >
                                 {it.quantity}
                               </span>
                               <Button
@@ -158,7 +163,7 @@ export function CartDrawer() {
             </div>
 
             {items.length > 0 && (
-              <DrawerFooter className="border-t border-border bg-card">
+              <div className="border-t border-border bg-card p-5">
                 <div className="space-y-1.5 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal estimado</span>
@@ -174,10 +179,10 @@ export function CartDrawer() {
                     <span>{formatBRL(subtotal)}</span>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="mt-2 text-xs text-muted-foreground">
                   O valor final, a entrega e a disponibilidade serão confirmados pelo WhatsApp.
                 </p>
-                <div className="grid gap-2">
+                <div className="mt-4 grid gap-2">
                   <Button size="lg" variant="hero" onClick={() => setStep("checkout")}>
                     Preencher dados do pedido
                   </Button>
@@ -191,13 +196,13 @@ export function CartDrawer() {
                     Continuar comprando
                   </Button>
                 </div>
-              </DrawerFooter>
+              </div>
             )}
           </>
         ) : (
           <CheckoutForm onBack={() => setStep("cart")} />
         )}
-      </DrawerContent>
-    </Drawer>
+      </SheetContent>
+    </Sheet>
   );
 }
