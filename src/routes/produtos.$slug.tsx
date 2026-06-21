@@ -47,7 +47,7 @@ export const Route = createFileRoute("/produtos/$slug")({
 });
 
 function ProductDetailPage() {
-  const { product } = Route.useLoaderData();
+  const { product } = Route.useLoaderData() as { product: import("@/types").Product };
   const [qty, setQty] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const addItem = useCartStore((s) => s.addItem);
