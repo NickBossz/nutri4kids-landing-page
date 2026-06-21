@@ -7,6 +7,8 @@ import {
   useTransform,
 } from "framer-motion";
 
+import { useEffect, useState } from "react";
+
 type BranchProps = {
   path: string;
   showAt: number;
@@ -30,6 +32,33 @@ type FlowerProps = {
 };
 
 export function GrowingPlant() {
+    const [isPlantEnabled, setIsPlantEnabled] = useState(true);
+
+    useEffect(() => {
+    const savedPreference = localStorage.getItem("growing-plant-enabled");
+
+    if (savedPreference !== null) {
+        setIsPlantEnabled(savedPreference === "true");
+    }
+
+    const handlePlantVisibility = (event: Event) => {
+        const customEvent = event as CustomEvent<boolean>;
+        setIsPlantEnabled(customEvent.detail);
+    };
+
+    window.addEventListener(
+        "growing-plant-visibility",
+        handlePlantVisibility,
+    );
+
+    return () => {
+        window.removeEventListener(
+        "growing-plant-visibility",
+        handlePlantVisibility,
+        );
+    };
+    }, []);
+
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
@@ -47,14 +76,17 @@ export function GrowingPlant() {
     [0.12, 0.26, 0.4],
   );
 
+    if (!isPlantEnabled) {
+    return null;
+    }
 
   return (
     <aside
-      aria-hidden="true"
-      className="
+    aria-hidden="true"
+    className="
         pointer-events-none fixed bottom-0 left-0 top-[72px] z-30
-        hidden w-[170px] overflow-visible md:block lg:w-[210px]
-      "
+        hidden w-[145px] overflow-visible md:block lg:w-[190px]
+    "
     >
       {/* Brilho suave próximo ao início da planta */}
       <motion.div
@@ -65,11 +97,14 @@ export function GrowingPlant() {
         "
       />
 
-      <svg
+        <svg
         viewBox="0 0 180 1000"
         preserveAspectRatio="none"
-        className="absolute inset-0 h-full w-full overflow-visible"
-      >
+        className="
+            absolute inset-0 h-full w-full origin-top-left
+            scale-[0.9] overflow-visible lg:scale-100
+        "
+        >
         <defs>
           <linearGradient
             id="hangingVineStem"
@@ -373,7 +408,9 @@ function Branch({ path, showAt, progress }: BranchProps) {
     [showAt, showAt + 0.02],
     [0, 1],
   );
+  
 
+  
   return (
     <motion.path
       d={path}
