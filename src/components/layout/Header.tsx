@@ -49,7 +49,7 @@ export function Header() {
     >
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link to="/" aria-label="Ir para a página inicial" className="shrink-0">
-          <Logo />
+          <Logo className="h-12" />
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Principal">
@@ -96,7 +96,7 @@ export function Header() {
             <SheetContent side="right" className="w-[88vw] max-w-sm">
               <SheetHeader>
                 <SheetTitle>
-                  <Logo />
+                  <Logo className="h-14" />
                 </SheetTitle>
               </SheetHeader>
               <nav className="mt-6 flex flex-col gap-1" aria-label="Mobile">
