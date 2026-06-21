@@ -40,6 +40,7 @@ import {
 } from "@/services/cep";
 import { useCartStore } from "@/store/cart-store";
 import { formatBRL } from "@/lib/currency";
+import { formatPhone, isValidBrazilianPhone } from "@/lib/phone";
 import {
   buildFamilyOrderMessage,
   buildWhatsappUrl,
@@ -69,8 +70,11 @@ const schema = z
     phone: z
       .string()
       .trim()
-      .min(8, "Informe um telefone válido")
-      .max(30),
+      .min(1, "Informe o telefone")
+      .refine(
+        isValidBrazilianPhone,
+        "Informe um telefone válido com DDD",
+      ),
 
     email: z
       .string()
@@ -913,9 +917,23 @@ export function CheckoutForm({
             >
               <Input
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
                 placeholder="(34) 99999-9999"
-                {...register("phone")}
+                maxLength={15}
+                aria-invalid={Boolean(errors.phone)}
+                {...register("phone", {
+                  onChange: (event) => {
+                    setValue(
+                      "phone",
+                      formatPhone(event.target.value),
+                      {
+                        shouldDirty: true,
+                        shouldValidate: false,
+                      },
+                    );
+                  },
+                })}
               />
             </Field>
 
