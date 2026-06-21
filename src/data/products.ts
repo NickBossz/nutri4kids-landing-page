@@ -1,0 +1,201 @@
+import type { Product } from "@/types";
+
+// Produtos placeholder — substituir por dados reais da empresa.
+// As imagens usam Unsplash como referência visual neutra de alimentos.
+
+const img = (q: string, sig: number) =>
+  `https://images.unsplash.com/photo-${q}?auto=format&fit=crop&w=900&q=70&sig=${sig}`;
+
+export const products: Product[] = [
+  {
+    id: "p1",
+    slug: "lancheira-aventureira",
+    name: "Lancheira Aventureira",
+    shortDescription: "Sanduíche natural, fruta da estação e suco integral.",
+    description:
+      "Combinação completa para o dia escolar: um sanduíche natural assado, uma porção de fruta da estação higienizada e um suco integral em embalagem prática. Pensada para crianças em idade escolar.",
+    category: "lancheiras",
+    price: 24.9,
+    unit: "lancheira",
+    images: [
+      img("1604908176997-125f25cc6f3d", 1),
+      img("1565958011703-44f9829ba187", 2),
+    ],
+    featured: true,
+    popular: true,
+    available: true,
+    leadTimeHours: 24,
+    tags: ["mais-pedidos", "entrega-rapida"],
+    ingredients: [
+      "Pão integral",
+      "Peito de frango desfiado",
+      "Cenoura ralada",
+      "Fruta da estação",
+      "Suco integral 200ml",
+    ],
+    allergens: ["Glúten", "Pode conter traços de leite"],
+    conservation: "Conservar refrigerado até o consumo.",
+    validity: "Consumir no mesmo dia do recebimento.",
+    servingTip: "Ideal para o intervalo da manhã ou da tarde.",
+    placeholder: true,
+  },
+  {
+    id: "p2",
+    slug: "kit-festa-mini",
+    name: "Kit Festa Mini",
+    shortDescription: "Mini sanduíches, bolinhos e suchá para celebrar com leveza.",
+    description:
+      "Kit para celebrações pequenas: mini sanduíches variados, bolinhos caseiros e suchá natural. Apresentação cuidadosa em embalagem reaproveitável.",
+    category: "festas",
+    price: 149.0,
+    priceLabel: "A partir de R$ 149,00",
+    unit: "kit (serve até 8 crianças)",
+    images: [img("1600891964599-f61ba0e24092", 3), img("1551024601-bec78aea704b", 4)],
+    featured: true,
+    popular: true,
+    available: true,
+    leadTimeHours: 72,
+    tags: ["mais-pedidos"],
+    ingredients: ["Mini sanduíches sortidos", "Bolinhos caseiros", "Suchá natural"],
+    allergens: ["Glúten", "Leite", "Ovos"],
+    conservation: "Refrigerar.",
+    validity: "Consumir em até 24h após o recebimento.",
+    placeholder: true,
+  },
+  {
+    id: "p3",
+    slug: "snack-frutas",
+    name: "Snack de Frutas",
+    shortDescription: "Frutas frescas picadas em pote individual.",
+    description:
+      "Mix colorido de frutas da estação higienizadas e cortadas em pote individual. Sem açúcar adicionado, sem lactose e sem glúten.",
+    category: "lanches",
+    price: 12.5,
+    unit: "pote 200g",
+    images: [img("1490474504059-bf2db5ab2348", 5)],
+    featured: true,
+    popular: false,
+    available: true,
+    leadTimeHours: 24,
+    tags: ["sem-acucar-adicionado", "sem-lactose", "sem-gluten", "vegetariano", "entrega-rapida"],
+    ingredients: ["Frutas da estação"],
+    allergens: [],
+    conservation: "Refrigerar.",
+    validity: "Consumir no mesmo dia.",
+    placeholder: true,
+  },
+  {
+    id: "p4",
+    slug: "mini-pao-de-queijo",
+    name: "Mini Pão de Queijo",
+    shortDescription: "Pãezinhos macios assados na hora, em porções individuais.",
+    description:
+      "Mini pães de queijo assados em forno combinado, mantendo a maciez interna e a casca dourada. Embalados em porções individuais.",
+    category: "salgados",
+    price: 18.0,
+    unit: "pacote 10 unidades",
+    images: [img("1568901346375-23c9450c58cd", 6)],
+    featured: false,
+    popular: true,
+    available: true,
+    leadTimeHours: 24,
+    tags: ["sem-gluten", "vegetariano", "mais-pedidos"],
+    ingredients: ["Polvilho", "Queijo", "Ovos", "Leite"],
+    allergens: ["Leite", "Ovos"],
+    conservation: "Refrigerar ou congelar.",
+    validity: "5 dias refrigerado.",
+    placeholder: true,
+  },
+  {
+    id: "p5",
+    slug: "suco-natural-laranja",
+    name: "Suco Natural de Laranja",
+    shortDescription: "Suco da fruta espremido na hora, sem adição de açúcar.",
+    description: "Suco 100% da fruta, espremido no dia da entrega. Embalagem de 300ml.",
+    category: "bebidas",
+    price: 9.5,
+    unit: "300ml",
+    images: [img("1600271886742-f049b8b0b3b5", 7)],
+    featured: false,
+    popular: false,
+    available: true,
+    leadTimeHours: 24,
+    tags: ["sem-acucar-adicionado", "sem-lactose", "sem-gluten", "vegetariano"],
+    ingredients: ["Laranja"],
+    allergens: [],
+    conservation: "Refrigerar.",
+    validity: "Consumir no mesmo dia.",
+    placeholder: true,
+  },
+  {
+    id: "p6",
+    slug: "bolinho-cenoura",
+    name: "Bolinho de Cenoura",
+    shortDescription: "Bolinho macio com cobertura de chocolate.",
+    description:
+      "Bolinho de cenoura caseiro com cobertura de chocolate ao leite. Porção individual em embalagem prática.",
+    category: "doces",
+    price: 8.0,
+    unit: "unidade",
+    images: [img("1551024506-0bccd828d307", 8)],
+    featured: false,
+    popular: true,
+    available: true,
+    leadTimeHours: 24,
+    tags: ["vegetariano", "mais-pedidos"],
+    ingredients: ["Cenoura", "Farinha de trigo", "Ovos", "Açúcar", "Chocolate"],
+    allergens: ["Glúten", "Leite", "Ovos"],
+    conservation: "Ambiente fresco.",
+    validity: "3 dias.",
+    placeholder: true,
+  },
+  {
+    id: "p7",
+    slug: "kit-lancheira-semanal",
+    name: "Lancheira Semanal",
+    shortDescription: "Cinco lancheiras variadas, uma para cada dia da semana.",
+    description:
+      "Plano semanal de cinco lancheiras balanceadas, com variação de cardápio diária. Entregas combinadas conforme a rotina da família.",
+    category: "lancheiras",
+    price: 119.0,
+    priceLabel: "A partir de R$ 119,00 / semana",
+    unit: "5 lancheiras",
+    images: [img("1565299507177-b0ac66763828", 9)],
+    featured: true,
+    popular: false,
+    available: true,
+    leadTimeHours: 72,
+    tags: ["mais-pedidos"],
+    placeholder: true,
+  },
+  {
+    id: "p8",
+    slug: "kit-escola-degustacao",
+    name: "Kit Escola — Degustação",
+    shortDescription: "Amostra para escolas avaliarem nossas opções.",
+    description:
+      "Conjunto de degustação para coordenadores e nutricionistas escolares conhecerem nossas opções de fornecimento.",
+    category: "escolas",
+    price: null,
+    priceLabel: "Sob consulta",
+    unit: "kit institucional",
+    images: [img("1543353071-873f17a7a088", 10)],
+    featured: false,
+    popular: false,
+    available: true,
+    tags: [],
+    placeholder: true,
+  },
+];
+
+export function getProductBySlug(slug: string): Product | undefined {
+  return products.find((p) => p.slug === slug);
+}
+
+export function getFeaturedProducts(): Product[] {
+  return products.filter((p) => p.featured);
+}
+
+export function getPopularProducts(): Product[] {
+  return products.filter((p) => p.popular);
+}
