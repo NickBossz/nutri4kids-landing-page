@@ -89,7 +89,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "Lanchinho Feliz" },
       { name: "theme-color", content: "#c4654a" },
-      { property: "og:title", content: "Lanchinho Feliz" },
+      { property: "og:title", content: "Lanchinho Feliz | Lanches, lancheiras e alimentação para crianças" },
       {
         property: "og:description",
         content:
@@ -97,6 +97,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Lanchinho Feliz | Lanches, lancheiras e alimentação para crianças" },
+      { name: "description", content: "A website for a children's food company, showcasing products, facilitating orders via WhatsApp, and attracting school partnerships." },
+      { property: "og:description", content: "A website for a children's food company, showcasing products, facilitating orders via WhatsApp, and attracting school partnerships." },
+      { name: "twitter:description", content: "A website for a children's food company, showcasing products, facilitating orders via WhatsApp, and attracting school partnerships." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5c67c0fd-db8e-4ffd-9df0-db6522d1edea/id-preview-4dc9ebc7--e1af7eff-0af5-40e4-b39b-4bc58d31fb24.lovable.app-1782044623550.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/5c67c0fd-db8e-4ffd-9df0-db6522d1edea/id-preview-4dc9ebc7--e1af7eff-0af5-40e4-b39b-4bc58d31fb24.lovable.app-1782044623550.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
