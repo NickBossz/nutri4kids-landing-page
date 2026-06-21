@@ -2,48 +2,55 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { MessageCircle, School } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { track } from "@/lib/analytics";
-import { generateOrderCode } from "@/lib/order-code";
 import {
   buildSchoolMessage,
   buildWhatsappUrl,
   isWhatsappConfigured,
 } from "@/lib/whatsapp";
+import { generateOrderCode } from "@/lib/order-code";
+import { track } from "@/lib/analytics";
+import {
+  formatPhone,
+  isValidBrazilianPhone,
+} from "@/lib/phone";
 
-const schoolFormSchema = z.object({
+const schema = z.object({
   schoolName: z
     .string()
     .trim()
     .min(2, "Informe o nome da escola")
-    .max(120, "Nome muito longo"),
+    .max(120),
 
   responsibleName: z
     .string()
     .trim()
-    .min(2, "Informe o nome do responsável")
-    .max(120, "Nome muito longo"),
+    .min(2, "Informe o responsável")
+    .max(120),
 
   phone: z
     .string()
     .trim()
-    .min(8, "Informe um telefone válido")
-    .max(30, "Telefone muito longo"),
+    .min(1, "Informe o telefone")
+    .refine(
+      isValidBrazilianPhone,
+      "Informe um telefone válido com DDD",
+    ),
 
   childrenCount: z
     .string()
     .trim()
-    .max(20, "Quantidade inválida")
+    .max(20)
     .optional()
     .or(z.literal("")),
 });
 
-type SchoolFormValues = z.infer<typeof schoolFormSchema>;
+type Values = z.infer<typeof schema>;
 
 export function SchoolPartnership() {
   const [sent, setSent] = useState(false);
@@ -51,12 +58,13 @@ export function SchoolPartnership() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: {
       errors,
       isSubmitting,
     },
-  } = useForm<SchoolFormValues>({
-    resolver: zodResolver(schoolFormSchema),
+  } = useForm<Values>({
+    resolver: zodResolver(schema),
     defaultValues: {
       schoolName: "",
       responsibleName: "",
@@ -65,81 +73,96 @@ export function SchoolPartnership() {
     },
   });
 
-  const onSubmit = (values: SchoolFormValues) => {
+  const onSubmit = (values: Values) => {
     if (!isWhatsappConfigured()) {
-      toast.error("O WhatsApp ainda não foi configurado.");
+      toast.error("WhatsApp não configurado");
       return;
     }
 
     const code = generateOrderCode("PAR");
 
-    const message = buildSchoolMessage({
-      code,
-      schoolName: values.schoolName,
-      responsibleName: values.responsibleName,
-      phone: values.phone,
-      childrenCount: values.childrenCount || undefined,
-    });
+    const url = buildWhatsappUrl(
+      buildSchoolMessage({
+        code,
+        schoolName: values.schoolName,
+        responsibleName: values.responsibleName,
+        phone: values.phone,
+        childrenCount:
+          values.childrenCount || undefined,
+      }),
+    );
 
-    const url = buildWhatsappUrl(message);
+    track("school_contact_clicked", { code });
 
-    track("school_contact_clicked", {
-      code,
-      schoolName: values.schoolName,
-    });
+    window.open(
+      url,
+      "_blank",
+      "noopener,noreferrer",
+    );
 
-    window.open(url, "_blank", "noopener,noreferrer");
     setSent(true);
   };
 
   return (
-    <section className="border-t border-border bg-muted/30 py-16 md:py-20">
-      <div className="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+    <section className="section-padding bg-muted/40">
+      <div className="container-page grid gap-8 lg:grid-cols-[1fr_0.85fr] lg:items-start">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
-            <School className="h-4 w-4" aria-hidden="true" />
-            Solicitação de parceria
-          </span>
-
-          <h2 className="mt-5 font-display text-3xl font-bold sm:text-4xl">
-            Vamos entender a necessidade da sua escola
-          </h2>
-
-          <p className="mt-4 max-w-xl leading-relaxed text-muted-foreground">
-            Preencha os dados principais da instituição. As informações serão
-            organizadas em uma mensagem pronta para continuar o atendimento
-            pelo WhatsApp.
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary">
+            Para escolas
           </p>
 
-          <ul className="mt-7 space-y-3 text-sm text-muted-foreground">
-            <li>• Planejamento por turma e turno</li>
-            <li>• Pedidos recorrentes ou pontuais</li>
-            <li>• Opções para eventos e datas especiais</li>
-            <li>• Atendimento direto com a coordenação</li>
+          <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Uma parceria que vai além do lanche.
+          </h2>
+
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+            Atendemos escolas com planejamento de quantidade,
+            possibilidade de frequência recorrente e comunicação
+            próxima com a instituição. Adaptamos cardápios conforme
+            a operação e a realidade da escola.
+          </p>
+
+          <ul className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
+            <li className="rounded-2xl border border-border bg-background p-4">
+              Planejamento por turma e por turno
+            </li>
+
+            <li className="rounded-2xl border border-border bg-background p-4">
+              Cardápios adaptáveis
+            </li>
+
+            <li className="rounded-2xl border border-border bg-background p-4">
+              Frequência semanal ou pontual
+            </li>
+
+            <li className="rounded-2xl border border-border bg-background p-4">
+              Comunicação direta com a coordenação
+            </li>
           </ul>
         </div>
 
-        <div className="rounded-[2rem] border border-border bg-background p-6 shadow-[var(--shadow-card)] sm:p-8">
-          <h3 className="font-display text-2xl font-bold">
-            Solicitar uma proposta
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="rounded-3xl border border-border bg-background p-5 shadow-sm sm:p-6"
+        >
+          <h3 className="font-display text-xl font-bold">
+            Solicitar uma conversa
           </h3>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            Conte um pouco sobre a escola para iniciarmos o atendimento.
+            Preencha e enviaremos uma mensagem pronta no WhatsApp.
           </p>
 
-          <form
-            className="mt-7 space-y-5"
-            onSubmit={handleSubmit(onSubmit)}
-            noValidate
-          >
+          <div className="mt-5 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="schoolName">Nome da escola</Label>
+              <Label htmlFor="schoolName">
+                Nome da escola
+              </Label>
 
               <Input
                 id="schoolName"
-                placeholder="Ex.: Escola Mundo Feliz"
                 autoComplete="organization"
+                placeholder="Nome da instituição"
                 aria-invalid={Boolean(errors.schoolName)}
                 {...register("schoolName")}
               />
@@ -152,12 +175,14 @@ export function SchoolPartnership() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsibleName">Nome do responsável</Label>
+              <Label htmlFor="responsibleName">
+                Nome do responsável
+              </Label>
 
               <Input
                 id="responsibleName"
-                placeholder="Nome de quem fará o atendimento"
                 autoComplete="name"
+                placeholder="Seu nome"
                 aria-invalid={Boolean(errors.responsibleName)}
                 {...register("responsibleName")}
               />
@@ -170,15 +195,30 @@ export function SchoolPartnership() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
+              <Label htmlFor="schoolPhone">
+                Telefone
+              </Label>
 
               <Input
-                id="phone"
+                id="schoolPhone"
                 type="tel"
-                placeholder="(34) 99999-9999"
+                inputMode="tel"
                 autoComplete="tel"
+                placeholder="(34) 99999-9999"
+                maxLength={15}
                 aria-invalid={Boolean(errors.phone)}
-                {...register("phone")}
+                {...register("phone", {
+                  onChange: (event) => {
+                    setValue(
+                      "phone",
+                      formatPhone(event.target.value),
+                      {
+                        shouldDirty: true,
+                        shouldValidate: false,
+                      },
+                    );
+                  },
+                })}
               />
 
               {errors.phone && (
@@ -190,48 +230,35 @@ export function SchoolPartnership() {
 
             <div className="space-y-2">
               <Label htmlFor="childrenCount">
-                Número aproximado de crianças
+                Nº aproximado de crianças
               </Label>
 
               <Input
                 id="childrenCount"
                 inputMode="numeric"
                 placeholder="Ex.: 120"
-                aria-invalid={Boolean(errors.childrenCount)}
                 {...register("childrenCount")}
               />
-
-              {errors.childrenCount && (
-                <p className="text-sm text-destructive">
-                  {errors.childrenCount.message}
-                </p>
-              )}
             </div>
 
             <Button
               type="submit"
-              size="lg"
+              variant="whatsapp"
               className="w-full"
               disabled={isSubmitting}
             >
-              <MessageCircle aria-hidden="true" />
-
-              {isSubmitting
-                ? "Preparando mensagem..."
-                : "Solicitar proposta"}
+              <MessageCircle className="h-4 w-4" />
+              Solicitar conversa
             </Button>
 
             {sent && (
-              <p
-                role="status"
-                className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary"
-              >
-                A mensagem foi aberta no WhatsApp. Caso nada tenha aparecido,
-                verifique se o navegador bloqueou a nova janela.
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+                Mensagem aberta no WhatsApp. Caso a janela não tenha
+                aparecido, verifique seu navegador.
               </p>
             )}
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </section>
   );
