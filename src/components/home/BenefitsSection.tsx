@@ -1,58 +1,68 @@
-import { Heart, Leaf, MessageCircle, Truck, Users } from "lucide-react";
+import { Heart, Leaf, School } from "lucide-react";
 
 const BENEFITS = [
   {
     icon: Heart,
-    title: "Preparo cuidadoso",
-    desc: "Cada item é montado com atenção, da escolha dos ingredientes à embalagem.",
+    title: "Produção própria",
+    desc: "Cada produto é preparado com atenção desde os ingredientes até a organização do pedido.",
   },
   {
     icon: Leaf,
-    title: "Opções para diferentes necessidades",
-    desc: "Variações sem lactose, sem glúten e sem açúcar adicionado disponíveis sob consulta.",
+    title: "Cardápio pensado para crianças",
+    desc: "Sabores conhecidos apresentados em opções criativas para diferentes momentos da rotina.",
   },
   {
-    icon: Truck,
-    title: "Entrega combinada",
-    desc: "Definimos a melhor logística para sua rotina ou para a escola.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Atendimento próximo",
-    desc: "Todo pedido é confirmado em conversa pelo WhatsApp.",
-  },
-  {
-    icon: Users,
-    title: "Famílias e escolas",
-    desc: "Soluções pensadas tanto para o dia a dia em casa quanto para parcerias institucionais.",
+    icon: School,
+    title: "Para famílias e escolas",
+    desc: "Atendemos pedidos pontuais, kits personalizados e parcerias recorrentes com instituições.",
   },
 ];
 
 export function BenefitsSection() {
   return (
-    <section className="border-y border-border bg-card/60 py-16">
+    <section
+      id="diferenciais"
+      className="scroll-mt-24 border-y border-border bg-card/60 py-16"
+    >
       <div className="container-page">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-3xl font-bold sm:text-4xl">
-            Feito com cuidado para acompanhar bons momentos
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            Nossos diferenciais
+          </p>
+
+          <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">
+            Por que escolher a Nutri4Kids?
           </h2>
+
           <p className="mt-3 text-muted-foreground">
-            Cinco compromissos que estão presentes em cada pedido que sai daqui.
+            Uma experiência pensada para deixar a escolha do lanche mais simples
+            para responsáveis, crianças e escolas.
           </p>
         </div>
-        <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
-          {BENEFITS.map((b) => (
-            <li
-              key={b.title}
-              className="rounded-2xl border border-border bg-background p-5 shadow-[var(--shadow-card)]"
-            >
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                <b.icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <h3 className="mt-3 font-display text-base font-bold">{b.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{b.desc}</p>
-            </li>
-          ))}
+
+        <ul className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
+          {BENEFITS.map((benefit) => {
+            const Icon = benefit.icon;
+
+            return (
+              <li
+                key={benefit.title}
+                className="group rounded-3xl border border-border bg-background p-6 shadow-[var(--shadow-card)] transition-transform duration-300 hover:-translate-y-1"
+              >
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+
+                <h3 className="mt-4 font-display text-lg font-bold">
+                  {benefit.title}
+                </h3>
+
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {benefit.desc}
+                </p>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </section>
