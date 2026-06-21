@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ProdutosRouteImport } from './routes/produtos'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EscolasRouteImport } from './routes/escolas'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProdutosIndexRouteImport } from './routes/produtos.index'
 import { Route as ProdutosSlugRouteImport } from './routes/produtos.$slug'
 
 const SobreRoute = SobreRouteImport.update({
@@ -27,11 +27,6 @@ const SobreRoute = SobreRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProdutosRoute = ProdutosRouteImport.update({
-  id: '/produtos',
-  path: '/produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
@@ -59,10 +54,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProdutosIndexRoute = ProdutosIndexRouteImport.update({
+  id: '/produtos/',
+  path: '/produtos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProdutosSlugRoute = ProdutosSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ProdutosRoute,
+  id: '/produtos/$slug',
+  path: '/produtos/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -71,10 +71,10 @@ export interface FileRoutesByFullPath {
   '/escolas': typeof EscolasRoute
   '/faq': typeof FaqRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/produtos': typeof ProdutosRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/produtos/$slug': typeof ProdutosSlugRoute
+  '/produtos/': typeof ProdutosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,10 +82,10 @@ export interface FileRoutesByTo {
   '/escolas': typeof EscolasRoute
   '/faq': typeof FaqRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/produtos': typeof ProdutosRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/produtos/$slug': typeof ProdutosSlugRoute
+  '/produtos': typeof ProdutosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,10 +94,10 @@ export interface FileRoutesById {
   '/escolas': typeof EscolasRoute
   '/faq': typeof FaqRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/produtos': typeof ProdutosRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/produtos/$slug': typeof ProdutosSlugRoute
+  '/produtos/': typeof ProdutosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,10 +107,10 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/faq'
     | '/politica-de-privacidade'
-    | '/produtos'
     | '/sitemap.xml'
     | '/sobre'
     | '/produtos/$slug'
+    | '/produtos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,10 +118,10 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/faq'
     | '/politica-de-privacidade'
-    | '/produtos'
     | '/sitemap.xml'
     | '/sobre'
     | '/produtos/$slug'
+    | '/produtos'
   id:
     | '__root__'
     | '/'
@@ -129,10 +129,10 @@ export interface FileRouteTypes {
     | '/escolas'
     | '/faq'
     | '/politica-de-privacidade'
-    | '/produtos'
     | '/sitemap.xml'
     | '/sobre'
     | '/produtos/$slug'
+    | '/produtos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -141,9 +141,10 @@ export interface RootRouteChildren {
   EscolasRoute: typeof EscolasRoute
   FaqRoute: typeof FaqRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
-  ProdutosRoute: typeof ProdutosRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
+  ProdutosSlugRoute: typeof ProdutosSlugRoute
+  ProdutosIndexRoute: typeof ProdutosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,13 +161,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/produtos': {
-      id: '/produtos'
-      path: '/produtos'
-      fullPath: '/produtos'
-      preLoaderRoute: typeof ProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidade': {
@@ -204,27 +198,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produtos/': {
+      id: '/produtos/'
+      path: '/produtos'
+      fullPath: '/produtos/'
+      preLoaderRoute: typeof ProdutosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produtos/$slug': {
       id: '/produtos/$slug'
-      path: '/$slug'
+      path: '/produtos/$slug'
       fullPath: '/produtos/$slug'
       preLoaderRoute: typeof ProdutosSlugRouteImport
-      parentRoute: typeof ProdutosRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface ProdutosRouteChildren {
-  ProdutosSlugRoute: typeof ProdutosSlugRoute
-}
-
-const ProdutosRouteChildren: ProdutosRouteChildren = {
-  ProdutosSlugRoute: ProdutosSlugRoute,
-}
-
-const ProdutosRouteWithChildren = ProdutosRoute._addFileChildren(
-  ProdutosRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -232,9 +221,10 @@ const rootRouteChildren: RootRouteChildren = {
   EscolasRoute: EscolasRoute,
   FaqRoute: FaqRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
-  ProdutosRoute: ProdutosRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
+  ProdutosSlugRoute: ProdutosSlugRoute,
+  ProdutosIndexRoute: ProdutosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

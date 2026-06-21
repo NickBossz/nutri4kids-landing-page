@@ -18,7 +18,7 @@ import { categories } from "@/data/categories";
 import { PRODUCT_TAG_LABELS, type ProductTag } from "@/types";
 import { track } from "@/lib/analytics";
 
-export const Route = createFileRoute("/produtos")({
+export const Route = createFileRoute("/produtos/")({
   head: () => ({
     meta: [
       { title: "Produtos — Lanchinho Feliz" },
